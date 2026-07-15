@@ -2,8 +2,8 @@
   "shard": 0,
   "sites": 50,
   "states": {
-    "declared_exclusion": 11,
-    "scanned": 31,
-    "unreachable": 8
+    "scanned": 39,
+    "declared_exclusion": 8,
+    "unreachable": 3
   }
 }
