@@ -1,0 +1,86 @@
+domain,reason
+googleapis.com,API infrastructure
+gstatic.com,CDN static assets
+googletagmanager.com,tag management infrastructure
+google-analytics.com,analytics infrastructure
+googlesyndication.com,ad tech
+googleadservices.com,ad tech
+doubleclick.net,ad tech
+googleusercontent.com,user content CDN
+googlevideo.com,video CDN
+ggpht.com,image CDN
+gvt1.com,Google update CDN
+gvt2.com,Google update CDN
+app-measurement.com,analytics infrastructure
+crashlytics.com,crash reporting infrastructure
+firebaseio.com,API infrastructure
+fbcdn.net,CDN static assets
+facebook.net,SDK CDN
+instagram.net,SDK CDN
+whatsapp.net,messaging API infrastructure
+cdninstagram.com,image CDN
+licdn.com,CDN static assets
+twimg.com,CDN static assets
+tiktokcdn.com,CDN static assets
+tiktokcdn-us.com,CDN static assets
+tiktokv.com,API infrastructure
+ttlivecdn.com,video CDN
+akamaihd.net,CDN
+akamaized.net,CDN
+akamai.net,CDN
+akadns.net,DNS infrastructure
+akamaiedge.net,CDN edge
+edgesuite.net,CDN edge
+edgekey.net,CDN edge
+cloudfront.net,CDN
+amazonaws.com,cloud infrastructure
+awsdns-hostmaster.org,DNS infrastructure
+elasticbeanstalk.com,hosting infrastructure
+azureedge.net,CDN
+azurewebsites.net,hosting infrastructure
+windowsupdate.com,update infrastructure
+trafficmanager.net,DNS traffic routing
+msedge.net,CDN
+aaplimg.com,Apple CDN
+mzstatic.com,Apple static CDN
+apple-dns.net,DNS infrastructure
+icloud-content.com,content CDN
+cdn77.org,CDN
+fastly.net,CDN
+fastlylb.net,CDN load balancing
+jsdelivr.net,CDN static assets
+unpkg.com,CDN static assets
+cloudflare.net,CDN infrastructure
+cloudflaressl.com,TLS infrastructure
+cloudflareinsights.com,analytics infrastructure
+root-servers.net,DNS root servers
+gtld-servers.net,DNS TLD servers
+nstld.com,DNS infrastructure
+a-msedge.net,CDN
+adnxs.com,ad tech
+adsrvr.org,ad tech
+criteo.com,ad tech
+criteo.net,ad tech
+rubiconproject.com,ad tech
+pubmatic.com,ad tech
+casalemedia.com,ad tech
+openx.net,ad tech
+scorecardresearch.com,analytics infrastructure
+demdex.net,ad tech identity
+omtrdc.net,analytics infrastructure
+2mdn.net,ad serving CDN
+rlcdn.com,ad tech identity
+sentry.io,error tracking API
+segment.com,analytics API
+branch.io,deep link API
+appsflyer.com,attribution API
+adjust.com,attribution API
+onesignal.com,push notification API
+intercomcdn.com,CDN static assets
+wp.com,CDN and API infrastructure
+wixstatic.com,CDN static assets
+squarespace-cdn.com,CDN static assets
+shopifycdn.com,CDN static assets
+bytefcdn.com,CDN
+digicert.com,certificate infrastructure
+ntp.org,time server infrastructure

@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "frozen": "2026-07-15",
+  "base_score": 100,
+  "penalties": {
+    "O1": 60,
+    "O2": 30,
+    "O3": 20,
+    "O4": 40
+  },
+  "floor": 0,
+  "not_assessed_rule": "When O1 fires on all fetch variants, O2, O3, and O4 are recorded as not_assessed and contribute no penalty. They are never treated as zero or as additional penalties."
+}

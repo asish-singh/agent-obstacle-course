@@ -1,0 +1,49 @@
+{
+  "version": "1.0",
+  "notes": "Detection rules for bot walls, login walls, CMP scripts, and consent overlays. Frozen after pilot tuning. All matching is case insensitive substring matching against response bodies, headers, or URLs as stated per rule.",
+  "bot_wall": {
+    "status_codes": [403, 429, 503],
+    "body_signatures": [
+      {"vendor": "cloudflare", "patterns": ["cf-browser-verification", "challenge-platform", "checking your browser before accessing", "cf_chl_opt", "cloudflare ray id", "attention required! | cloudflare", "just a moment...", "/cdn-cgi/challenge-platform/"]},
+      {"vendor": "akamai", "patterns": ["akamai bot manager", "ak-challenge", "_abck", "reference #18.", "access denied\" you don't have permission to access", "errors.edgesuite.net"]},
+      {"vendor": "perimeterx", "patterns": ["_pxcaptcha", "px-captcha", "perimeterx", "please verify you are a human", "captcha.px-cdn.net", "human-challenge"]},
+      {"vendor": "datadome", "patterns": ["datadome", "geo.captcha-delivery.com", "dd_cookie", "interstitial.captcha-delivery.com"]},
+      {"vendor": "hcaptcha", "patterns": ["hcaptcha.com/1/api.js", "h-captcha", "hcaptcha-box"]},
+      {"vendor": "recaptcha", "patterns": ["google.com/recaptcha/api", "g-recaptcha", "recaptcha/api2/anchor", "unusual traffic from your computer network"]}
+    ],
+    "header_signatures": [
+      {"vendor": "cloudflare", "header": "cf-mitigated", "patterns": ["challenge"]},
+      {"vendor": "datadome", "header": "x-datadome", "patterns": [""]},
+      {"vendor": "akamai", "header": "server", "patterns": ["akamaighost"]}
+    ]
+  },
+  "login": {
+    "path_patterns": ["/login", "/signin", "/sign-in", "/sign_in", "/log-in", "/log_in", "/auth", "/authenticate", "/sso", "/session/new", "/account/login", "/accounts/login", "/user/login", "/users/sign_in", "/wp-login.php", "/oauth/authorize", "/id/login", "/portal/login"],
+    "dom_rule": {
+      "password_input_selector": "input[type=password]",
+      "above_the_fold_px": 900,
+      "max_article_text_chars": 500
+    }
+  },
+  "cmp_script_domains": [
+    "cdn.cookielaw.org", "onetrust.com", "cookiebot.com", "consent.cookiebot.com",
+    "quantcast.com", "cmp.quantcast.com", "sourcepoint.mgr.consensu.org", "cdn.privacy-mgmt.com",
+    "consensu.org", "trustarc.com", "consent.trustarc.com", "usercentrics.eu",
+    "app.usercentrics.eu", "didomi.io", "sdk.privacy-center.org", "cookiefirst.com",
+    "iubenda.com", "cdn.iubenda.com", "termly.io", "app.termly.io", "osano.com", "cmp.osano.com",
+    "cookieyes.com", "cdn-cookieyes.com", "klaro.org", "borlabs.io", "complianz.io",
+    "ketch.com", "global.ketchcdn.com", "transcend.io", "securiti.ai", "funding-choices",
+    "fundingchoicesmessages.google.com"
+  ],
+  "consent_vocabulary": {
+    "en": ["accept all", "accept cookies", "we use cookies", "cookie settings", "manage preferences", "agree and continue", "your privacy choices", "consent"],
+    "de": ["alle akzeptieren", "cookies akzeptieren", "wir verwenden cookies", "einwilligung", "zustimmen", "datenschutzeinstellungen", "einstellungen verwalten"],
+    "fr": ["tout accepter", "accepter les cookies", "nous utilisons des cookies", "gérer les préférences", "consentement", "paramètres des cookies", "continuer sans accepter"],
+    "es": ["aceptar todo", "aceptar cookies", "utilizamos cookies", "gestionar preferencias", "consentimiento", "configuración de cookies"],
+    "it": ["accetta tutto", "accetta i cookie", "utilizziamo i cookie", "gestisci le preferenze", "consenso", "impostazioni dei cookie"]
+  },
+  "overlay_rule": {
+    "positions": ["fixed", "absolute"],
+    "min_viewport_coverage": 0.9
+  }
+}

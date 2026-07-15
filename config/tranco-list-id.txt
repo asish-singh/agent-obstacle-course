@@ -1,0 +1,4 @@
+list_id: L5684
+downloaded: 2026-07-15
+source: https://tranco-list.eu/top-1m.csv.zip
+note: default Tranco list deduplicated to registrable (pay level) domains using the public suffix list via tldextract

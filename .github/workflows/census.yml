@@ -1,0 +1,100 @@
+name: census
+
+# One time census. Manual dispatch only. Never add a schedule trigger.
+on:
+  workflow_dispatch:
+    inputs:
+      pilot:
+        description: "Pilot mode, scan only the first 50 sites on shard 0"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  pilot:
+    if: ${{ inputs.pilot }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install requests tldextract playwright
+          playwright install chromium --with-deps
+      - name: Scan pilot shard
+        run: python3 -m src.shard --shard 0 --pilot
+      - name: Upload evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pilot-shard-0
+          path: out/shard_0/
+      - name: Commit pilot evidence for hand review
+        run: |
+          mkdir -p data/pilot
+          cp -r out/shard_0/. data/pilot/
+          git config user.name "Asish Singh"
+          git config user.email "asish-singh@x-b-e.com"
+          git add data/pilot
+          git commit -m "Pilot shard evidence for hand review"
+          git push
+
+  shard:
+    if: ${{ !inputs.pilot }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          pip install requests tldextract playwright
+          playwright install chromium --with-deps
+      - name: Scan shard
+        run: python3 -m src.shard --shard ${{ matrix.shard }} --shard-size 250
+      - name: Upload evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-${{ matrix.shard }}
+          path: out/shard_${{ matrix.shard }}/
+
+  aggregate:
+    if: ${{ !inputs.pilot }}
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install requests tldextract
+      - name: Download all shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: shard-*
+          path: out/
+      - name: Normalize artifact directory names
+        run: |
+          cd out
+          for d in shard-*; do mv "$d" "shard_${d#shard-}"; done
+      - name: Aggregate
+        run: python3 -m src.aggregate
+      - name: Commit results
+        run: |
+          git config user.name "Asish Singh"
+          git config user.email "asish-singh@x-b-e.com"
+          git add data REPORT.md
+          git commit -m "Agent obstacle course census results"
+          git push

@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Scan working output (artifacts, not committed)
+out/
+
+# Build output
+dist/
+build/
+*.log
+
+# OS
+.DS_Store
