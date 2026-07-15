@@ -84,3 +84,10 @@ shopifycdn.com,CDN static assets
 bytefcdn.com,CDN
 digicert.com,certificate infrastructure
 ntp.org,time server infrastructure
+domaincontrol.com,GoDaddy DNS nameserver infrastructure
+microsoftonline.com,Microsoft login API infrastructure
+office.net,Microsoft Office service infrastructure
+sharepoint.com,SharePoint tenant hosting infrastructure
+ripn.net,Russian network registry infrastructure
+windows.net,Azure service infrastructure
+akam.net,Akamai DNS infrastructure

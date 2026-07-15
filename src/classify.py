@@ -129,16 +129,14 @@ def detect_noai_meta(html):
     return False
 
 
-def parse_robots(body, our_token="agentobstaclecourse"):
-    """Parse robots.txt text.
+def _robots_groups(body):
+    """Parse robots.txt into {agent_token: [(is_allow, path), ...]}.
 
-    Returns a dict with:
-      disallows_home: True when '/' is disallowed for '*' or for our UA token
-      ai_directives: list of named AI agents that have any Disallow rule
-    Manual parser so we can inspect per-agent groups; stdlib robotparser is
-    also used by the fetcher as a cross check.
+    Consecutive User-agent lines share the group that follows. Rule lines
+    other than allow/disallow end the agent-collecting phase but stay inside
+    the group (per the REP, unknown lines do not split a group).
     """
-    groups = {}  # agent token -> list of disallow paths
+    groups = {}  # agent token -> list of (is_allow, path) rules
     current_agents = []
     expecting_agents = True
     for raw_line in (body or "").splitlines():
@@ -158,26 +156,86 @@ def parse_robots(body, our_token="agentobstaclecourse"):
             groups.setdefault(token, [])
         elif field in ("disallow", "allow"):
             expecting_agents = False
-            if field == "disallow" and value:
+            if value:  # empty path means no rule
                 for agent in current_agents:
-                    groups.setdefault(agent, []).append(value)
+                    groups.setdefault(agent, []).append((field == "allow", value))
         else:
             expecting_agents = False
+    return groups
 
-    def home_blocked(paths):
-        return any(p == "/" or p == "/*" for p in paths)
 
-    disallows_home = False
-    for token in ("*", our_token):
-        for agent, paths in groups.items():
-            if agent == token or (token != "*" and token in agent):
-                if home_blocked(paths):
-                    disallows_home = True
+def _rule_matches(pattern, path):
+    """True when a robots rule path matches the URL path, per Google's REP.
+
+    '*' matches any run of characters; a trailing '$' anchors the end.
+    Matching is always anchored at the start of the path.
+    """
+    if not pattern:
+        return False
+    anchored = pattern.endswith("$")
+    core = pattern[:-1] if anchored else pattern
+    regex = "^" + ".*".join(re.escape(part) for part in core.split("*"))
+    if anchored:
+        regex += "$"
+    return re.match(regex, path) is not None
+
+
+def _select_group(groups, our_token):
+    """Pick the rule group that applies to our agent, per the REP.
+
+    A named group applies when its token appears in our token (or ours in
+    it), most specific (longest) matching name wins; otherwise the '*'
+    group; otherwise None (everything allowed).
+    """
+    our_token = our_token.lower()
+    named = [t for t in groups
+             if t != "*" and (t in our_token or our_token in t)]
+    if named:
+        return groups[max(named, key=len)]
+    return groups.get("*")
+
+
+def robots_path_allowed(body, path="/", our_token="agentobstaclecourse"):
+    """Single authority for robots.txt decisions, per Google's REP.
+
+    Longest matching rule wins; on a tie in match length, Allow wins.
+    No matching rule, or no applicable group, means allowed.
+    """
+    rules = _select_group(_robots_groups(body), our_token)
+    if not rules:
+        return True
+    best_len = -1
+    best_allow = True
+    for is_allow, pattern in rules:
+        if _rule_matches(pattern, path):
+            length = len(pattern)
+            if length > best_len or (length == best_len and is_allow):
+                best_len = length
+                best_allow = is_allow
+    return best_allow
+
+
+def parse_robots(body, our_token="agentobstaclecourse"):
+    """Parse robots.txt text.
+
+    Returns a dict with:
+      disallows_home: True when '/' is disallowed for the applicable group
+        (our token's named group if present, else '*'), evaluated with the
+        REP longest-match rule via robots_path_allowed. This is the single
+        authority for declared_exclusion; the stdlib robotparser is only
+        recorded as an opinion, never deciding.
+      ai_directives: list of named AI agents that have any Disallow rule
+    """
+    groups = _robots_groups(body)
     ai_directives = sorted(
-        agent for agent, paths in groups.items()
-        if paths and any(t in agent for t in AI_AGENT_TOKENS)
+        agent for agent, rules in groups.items()
+        if any(not is_allow for is_allow, _ in rules)
+        and any(t in agent for t in AI_AGENT_TOKENS)
     )
-    return {"disallows_home": disallows_home, "ai_directives": ai_directives}
+    return {
+        "disallows_home": not robots_path_allowed(body, "/", our_token),
+        "ai_directives": ai_directives,
+    }
 
 
 def classify_site(evidence, signatures, penalties):

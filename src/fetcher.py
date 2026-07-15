@@ -133,6 +133,9 @@ class SiteFetcher:
             "body": robots_result["body"][:65536] if robots_result["status"] == 200 else "",
             "error": robots_result["error"],
         }
+        if robots_result["status"] == 200:
+            evidence["robots"]["robots_stdlib_opinion"] = (
+                self._robots_stdlib_opinion(robots_result["body"]))
         if self.host is None:
             evidence["state"] = "unreachable"
             evidence["error"] = robots_result["error"]
@@ -183,11 +186,24 @@ class SiteFetcher:
         return result
 
     def _robots_disallows_home(self, body):
-        """robots.txt honored. Stdlib parser plus a manual check for our token and *."""
-        rp = robotparser.RobotFileParser()
-        rp.parse(body.splitlines())
-        blocked = (not rp.can_fetch(OUR_ROBOTS_TOKEN, f"https://{self.host}/")
-                   or not rp.can_fetch(AGENT_UA, f"https://{self.host}/"))
-        # Manual cross check, mirrors classify.parse_robots.
-        manual = classify.parse_robots(body)["disallows_home"]
-        return blocked or manual
+        """robots.txt honored. classify.parse_robots is the single authority.
+
+        The same function computes o5.robots_disallows_home during
+        classification, so the declared_exclusion state and the o5 field can
+        never contradict each other.
+        """
+        return classify.parse_robots(body, our_token=OUR_ROBOTS_TOKEN.lower())["disallows_home"]
+
+    def _robots_stdlib_opinion(self, body):
+        """Stdlib robotparser verdict, recorded as evidence only, never deciding.
+
+        The stdlib parser has proven version unstable across Python releases,
+        so it is kept purely as a cross check in the evidence JSON.
+        """
+        try:
+            rp = robotparser.RobotFileParser()
+            rp.parse(body.splitlines())
+            return (not rp.can_fetch(OUR_ROBOTS_TOKEN, f"https://{self.host}/")
+                    or not rp.can_fetch(AGENT_UA, f"https://{self.host}/"))
+        except Exception:
+            return None
