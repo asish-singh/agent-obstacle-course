@@ -35,6 +35,7 @@ jobs:
           path: out/shard_0/
       - name: Commit pilot evidence for hand review
         run: |
+          rm -rf data/pilot
           mkdir -p data/pilot
           cp -r out/shard_0/. data/pilot/
           git config user.name "Asish Singh"

@@ -1,6 +1,6 @@
 # Methodology
 
-This is the public measurement protocol for the Agent Obstacle Course census. It is adapted from SPEC.md sections 2 to 6 and freezes after one round of signature tuning on the 50 site pilot. Any edit after that point is a deliberate, visible commit.
+This is the public measurement protocol for the Agent Obstacle Course census. It is adapted from SPEC.md sections 2 to 6. The 50 site pilot ran on 15 July 2026 and its review produced one correction, robots.txt evaluation now follows the REP longest match rule with a single authoritative implementation. This protocol is frozen as of 15 July 2026, before the census. Any edit after this point is a deliberate, visible commit.
 
 ## What counts as an obstacle
 
